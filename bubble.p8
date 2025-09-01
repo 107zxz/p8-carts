@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
--- bubble game v0.03
+-- bubble game v0.05
 -- by amy_hasnumber
 
 -- todo: cart should load
