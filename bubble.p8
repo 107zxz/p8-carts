@@ -118,7 +118,7 @@ function _update()
 	
 	-- skip these if we're in the
 	-- boss fight.
-	if level==4 do
+	if level>=4 do
 		return
 	end
 	
@@ -219,6 +219,10 @@ function _draw()
 	
 	-- menu
 	if inmenu do
+		if level>4 do
+			cls()
+		end
+	
 	 draw_menu()
 	end
 end
@@ -510,7 +514,18 @@ dlg={{
 "you're gonna have\nto tear this fucker\nto shreds",
 "you know the rules.",
 "knock 'em dead."
+},{
+"you did it!",
+"to be honest i\nhave no clue how."
 }}
+
+dethmsgs={
+"don't worry about it.",
+"i have places to go\npeople to be",
+"if i were to put you in a meat\ngrinder",
+"father of lies",
+"better to cum in the sink\nthan sink in the cum"
+}
 -->8
 -- level difficulties
 lvlballs={
@@ -541,16 +556,18 @@ lvlballs={
 	},
 	{
 		{x=16,y=-8,vx=2,vy=-1,p=1,atk=false},
-		{x=48,y=-8,vx=-2,vy=-1,p=2,atk=false},
-		{x=96,y=-8,vx=-1,vy=-1,p=3,atk=false},
-		{x=112,y=-8,vx=-1,vy=-2,p=4,atk=false},
-		{x=96,y=-8,vx=1,vy=-2,p=5,atk=false}
+		{x=48,y=-8,vx=-1,vy=-2,p=2,atk=false},
+		{x=96,y=-8,vx=-1,vy=-2,p=3,atk=false},
+		{x=112,y=-8,vx=-2,vy=-1,p=4,atk=false},
+--		{x=96,y=-8,vx=1,vy=-2,p=5,atk=false}
 	}
 }
 -->8
 -- level 4 specials
 boscol=1
 boshrt=0
+
+foxdie=false
 
 function draw_lv4_background()
 	for i=1,128,8 do
@@ -568,7 +585,7 @@ function draw_lv4_background()
 	end
 	
 	  	
-	if boshrt>0 do
+	if boshrt>0 or foxdie do
 	 boshrt-=1
 	 if boshrt%2==0 do
 	  pal(1,7)
@@ -576,8 +593,10 @@ function draw_lv4_background()
 	end
 	
 	-- the eyye
-	bosx=64+sin(t()/8)*32
-	bosy=32+cos(t()/8)*8+boscroll
+	if not foxdie do
+		bosx=64+sin(t()/8)*32
+		bosy=32+cos(t()/8)*8+boscroll
+	end
 	
 	circfill(bosx,bosy+1,33,1)
 	circfill(bosx,bosy,32,2)
@@ -587,15 +606,21 @@ function draw_lv4_background()
 	circfill(bosx-1,bosy,10,0)
 	palt()
 	
-	pal(ballpals[boscol])
-	spr(2,bosx-4,bosy-4)
-	pal()
+	if not foxdie do
+		pal(ballpals[boscol])
+		spr(2,bosx-4,bosy-4)
+		pal()
+	end
 	
+	if boshrt<0 do
+		pal(7,5)
+	end
 	for i=0,6 do
 		spr(6+i*16,bosx-32+(sin(t()+i/6)),bosy-32+i*8,7,1)
 	end
+	pal()
 	
-	for i=0,16 do
+	for i=0,8 do
 		pset(cos(t()/3+i/8)*28+bosx,sin(t()/3+i/8)*28+bosy,1)
 	end
 	
@@ -603,19 +628,31 @@ function draw_lv4_background()
 	circ(bosx,bosy,42+sin(t()/3)*5,10)
 	fillp()
 	
---	line(bosx,0,bosx,128,5)
+	if foxdie do
+		print(rnd(dethmsgs),64,64,8)
+	end
 end
 
 function update_lv4()
 
+	if foxdie do
+		if boshrt<-90 do
+			level=5
+			showdlg=true
+			bosy=-128
+			_init()
+		end
+		return
+	end
+
 	-- descend
 	if boscroll<0 do
-	 boscroll+=0.25
+	 boscroll+=0.5
 	end
 
 	
 	-- colour
-	boscol=(t()/2\1)%5
+	boscol=(t()/2\1)%4+1
 	
 	-- collision
 	lv4_collision()
@@ -628,24 +665,32 @@ function update_lv4()
 	 end
 	end
 	
-	if bmbs<(bosphs-1)*2 do
+	if bmbs<(bosphs-1)*2 and not foxdie do
 		add(balls,{x=64,y=-8,vx=1,vy=2,p=99,atk=false})
 	end
+	
+	-- will only happen if boss
+	-- has been flashing for ages
+	-- (happens in death seq)
+	-- see draw
 end
 
 function lv4_collision()
 	for b in all(balls) do
 		if b.atk and b.p==boscol
-		and abs(b.x-bosx)<32
+		and abs(b.x-bosx)<16
 		and abs(b.y-bosy)<16	
 		do
 			-- screenflash=8
 			del(balls,b)
 			add(balls,{x=32,y=-8,vx=1,vy=2,p=99,atk=false})
-			add(balls,{x=96,y=-8,vx=-1,vy=2,p=99,atk=false})
---			add(balls,{x=96,y=-8,vx=2,vy=-1,p=bosphs,atk=false})
 			bosphs+=1
 			boshrt=30
+			
+			if bosphs>=5 do
+				foxdie=true
+				balls={}
+			end
 		end
 	end
 end
