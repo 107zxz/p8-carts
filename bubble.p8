@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
--- bubble game v0.07
+-- bubble game v0.08
 -- by amy_hasnumbers
 
 -- todo: cart should load
@@ -502,8 +502,14 @@ dlg={{
 "try to avoid it.\n\nit'll take care of\nitself when you\nclear the rest.",
 "stay safe, ok?"
 },{
-"it's here.",
-"knock 'em dead"
+"i have good news\nand bad news.",
+"good news:\n\ni figured out\nwhat's been\nattracting all\nthese soul orbs.",
+"bad news:\n\nits an \f6aspect\015",
+"with us pinned down\nlike this we can't\nrun.",
+"if you wanna get\nout of this alive...",
+"you're gonna have\nto tear this fucker\nto shreds",
+"you know the rules.",
+"knock 'em dead."
 }}
 -->8
 -- level difficulties
